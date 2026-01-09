@@ -10,7 +10,18 @@ tags:
 ---
 
 Assamese transcriptions:   
-![Audio](/files/common_voice_as_22076946.mp3)
+
+
+https://github.com/user-attachments/assets/cf318b91-8830-497b-9c43-f1223a5142b9
+
+<audio controls>
+  <source src="/files/as_1.mp4" type="audio/mpeg">
+  <source src="/files/common_voice_as_22076946.mp3" type="audio/mpeg">
+  <source src="https://github.com/hblogan/hblogan.github.io/tree/main/files/as_1.mp4" type="audio/mpeg">
+  <source src="https://github.com/user-attachments/assets/cf318b91-8830-497b-9c43-f1223a5142b9" type="audio/mpeg">
+  Error text
+</audio>
+
 78 Source: Audio Data   
    Target: আজি এই পৃথিৱীজোৰা মহাসমৰত পূবৰ পশ্চিমৰ সকলো দেশে, মহাদেশে জুই জ্বলিব লাগিছে   
    fTrans:  আজি এই বিঠিবি জৰা মহা সমৰোত পুবৰ পছিমৰ সকলো দেখে মহা দেখে জুোই জলিব লাগিছে।
@@ -18,12 +29,26 @@ Assamese transcriptions:
 Target: āji ēi pr̥thivījōraā mahāsamarata pūbara paścimara sakalō dēśē, mahādēśē jui jvaliba lāgichē   
 fTrans: āji ēi biṭhibi jaraā mahā samaraōta pubara pachimara sakalō dēkhē mahā dēkhē juōi jaliba lāgichē.
 
+https://github.com/user-attachments/assets/0fef6a2f-3c92-4e00-9600-09d818bbe40d
+
+<audio controls>
+  <source src="https://github.com/user-attachments/assets/cf318b91-8830-497b-9c43-f1223a5142b9" type="audio/mpeg">
+  Error text
+</audio>
+
 84 Source: Audio Data  
    Target: সকলো কাৰ্যৰ পূৰ্বে গণেশ স্মৰণ বা পূজন শুভকৰ আৰু মংগলজনক।   
    fTrans: সকলো কাৰ্জৰ পুৰ্বে গনেশ মৰণ বা পুজন শুভকৰ আৰু মংগ'ল জনক।  
    
 Target: sakalō kārayara pūravē gaṇēśa smaraṇa bā pūjana śubhakara ārau maṅgalajanaka.   
 fTrans: sakalō kārajara puravē ganēśa maraṇa bā pujana śubhakara ārau maṅga’la janaka.
+
+https://github.com/user-attachments/assets/9659a572-035c-4deb-b9d0-330a9e8907a0
+
+<audio controls>
+  <source src="https://github.com/user-attachments/assets/9659a572-035c-4deb-b9d0-330a9e8907a0" type="audio/mpeg">
+  Error text
+</audio>
 
 90 Source: Audio Data   
    Target: ডেকা ত্ৰিশ-পয়ত্ৰিশ বছৰীয়া হৈ উপাৰ্জনক্ষম হ’লেহে তেওঁৰ বিয়াৰ চেষ্টা কৰা হৈছিল।   
