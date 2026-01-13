@@ -17,7 +17,7 @@ All work was done by the author.
 
 ## Approach
 
-The dataset used was derived from the first 10K English-language reviews in this dataset in order to reduce the time needed to train the tranformer models while retaining high performance. Classifiers were all trained on the first 9K of that set and tested on the last 1K. 
+The dataset used was derived from the first 10K English-language reviews in this dataset in order to reduce the time needed to train the transformer models while retaining high performance. Classifiers were all trained on the first 9K of that set and tested on the last 1K. 
 
 The source dataset can be found here: https://www.kaggle.com/datasets/lucaspoo/steam-reviews-international 
 
@@ -49,11 +49,132 @@ The non-transformer models were all taken from the **sklearn** library, while th
 For the non-transformer models, a TF-IDF vectorizer was used to encode the review texts. For the balanced versions of the three models, class weights were added to the Logistic Regression Classifier and the Random Forest Classifier during initialization, while sample weights were added to the Naïve Bayes Classifier during the fit method. 
 
 [insert code here]
+Logistic Regression Classifier:
+
+```python
+from readcsvfile import read_csv, write_csv
+import csv
+
+from sklearn.metrics import f1_score, accuracy_score
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+
+path = "steam_reviews.csv"
+
+texts, labels, ids = read_csv(path)
+
+train_t, test_t, train_l, test_l, train_i, test_i = train_test_split(texts, labels, ids, test_size=0.1, shuffle=False)
+
+vect = TfidfVectorizer()
+dict = vect.fit_transform(train_t)
+
+clf = LogisticRegression(max_iter=1000)
+clf.fit(dict, train_l)
+
+pred = clf.predict(vect.transform(test_t))
+
+print("Accuracy is: " + str(accuracy_score(test_l, pred)))
+print("F1 is: " + str(f1_score(test_l, pred)))
+print("Reverse F1 is: " + str(f1_score(test_l, pred, pos_label=0)))
+```
 
 All the transformer models were trained with three epochs. The BERT model and both ELECTRA models both used a batch size of 8, while to prevent Out-of-Memory errors a batch size of 4 was used for the BART and GPT-2 models. The final 1K training samples were taken out of the training set to form a separate validation set.
 
 [insert code here]
+```python
+import io
+import csv
 
+from transformers import DataCollatorWithPadding, TrainingArguments, Trainer
+from transformers import BartConfig, BartTokenizer, BartForSequenceClassification, BartModel, AutoModelForSequenceClassification
+from datasets import Dataset, DatasetDict
+
+import torch
+import numpy as np
+import evaluate
+
+path = "steam_reviews.csv"
+
+def csv_to_dict(file):
+    f = io.open(file, "r", encoding="utf-8")
+    #1st row = id, 5th row = language, 6th row = review text, 7th row = label
+    csv_reader = csv.reader(f, delimiter=",")
+    next(csv_reader)
+    dict = {"texts": [], "labels": [], "ids": []}
+    i = 0
+    for row in csv_reader:
+        if row[4] == "english":
+            dict["texts"].append(row[5])
+            if row[6] == "False" or row[6] == "FALSE":
+                dict["labels"].append(0)
+            else:
+                dict["labels"].append(1)
+            dict["ids"].append(row[0])
+            i += 1
+            if i > 9999:
+                break
+    return dict
+```
+The csv_to_dict function does two things, namely converting the rows of a .csv file to a dict that can be easily fed into the dataset-creating function, as well as collecting only English-language reviews and to a maximum of 10K. 
+
+```python
+def tokenize_function(sample):
+    return tknzr(sample["texts"], truncation=True)
+
+data = Dataset.from_dict(csv_to_dict(path))
+val_data = data.train_test_split(test_size = 0.2, shuffle=False)
+test_data = val_data['test'].train_test_split(test_size = 0.5, shuffle=False)
+split_data = DatasetDict({
+    'train': val_data['train'],
+    'valid': test_data['train'],
+    'test': test_data['test']
+})
+
+tknzr = BartTokenizer.from_pretrained("facebook/bart-base")
+
+tknzd_data = split_data.map(tokenize_function, batched=True)
+print(tknzd_data)
+
+collator = DataCollatorWithPadding(tokenizer=tknzr, max_length=512)
+
+model = AutoModelForSequenceClassification.from_pretrained("facebook/bart-base", num_labels=2)
+
+
+device = torch.device("cuda") if torch.cuda.is_available else torch.device("cpu")
+model.to(device)
+
+
+def compute_metrics(eval_preds):
+    score = evaluate.load("accuracy")
+    f1 = evaluate.load("f1")
+    logits, labels = eval_preds
+    predictions = np.argmax(logits[0], axis = -1)
+    acc = score.compute(predictions=predictions, references=labels)
+    f1_score = f1.compute(predictions=predictions, references=labels)
+    return {**acc, **f1_score}
+
+trargs = TrainingArguments("models/bart", evaluation_strategy="epoch", per_device_train_batch_size = 4, per_device_eval_batch_size = 4)
+trainer = Trainer(
+    model,
+    trargs,
+    train_dataset=tknzd_data["train"],
+    eval_dataset=tknzd_data["valid"],
+    tokenizer=tknzr,
+    compute_metrics=compute_metrics
+)
+trainer.train()
+
+preds = trainer.predict(tknzd_data["test"])
+
+def print_pred(ids, preds):
+    with open('bart_pred.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['ID', 'LABEL'])
+        for x in range(len(ids)):
+            writer.writerow([ids[x], np.argmax(preds[0][0][x])])
+```
 
 
 ## Results
